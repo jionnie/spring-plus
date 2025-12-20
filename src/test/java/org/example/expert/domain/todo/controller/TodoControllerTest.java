@@ -1,7 +1,6 @@
 package org.example.expert.domain.todo.controller;
 
-import org.example.expert.domain.common.dto.AuthUser;
-import org.example.expert.domain.common.exception.InvalidRequestException;
+import org.example.expert.common.exception.InvalidRequestException;
 import org.example.expert.domain.todo.dto.response.TodoResponse;
 import org.example.expert.domain.todo.service.TodoService;
 import org.example.expert.domain.user.dto.response.UserResponse;
@@ -12,8 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 
 import static org.mockito.Mockito.when;
@@ -31,13 +32,20 @@ class TodoControllerTest {
     private TodoService todoService;
 
     @Test
+    @WithMockUser
     void todo_단건_조회에_성공한다() throws Exception {
         // given
         long todoId = 1L;
         String title = "title";
-        AuthUser authUser = new AuthUser(1L, "email", UserRole.USER);
-        User user = User.fromAuthUser(authUser);
+
+        User user = new User("Jane", "test@test.com", "1234", UserRole.USER);
+
+        Field userId = User.class.getDeclaredField("id");
+        userId.setAccessible(true);
+        userId.set(user, 1L);
+
         UserResponse userResponse = new UserResponse(user.getId(), user.getEmail());
+
         TodoResponse response = new TodoResponse(
                 todoId,
                 title,
@@ -55,10 +63,13 @@ class TodoControllerTest {
         mockMvc.perform(get("/todos/{todoId}", todoId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(todoId))
-                .andExpect(jsonPath("$.title").value(title));
+                .andExpect(jsonPath("$.title").value(title))
+                .andExpect(jsonPath("$.user.id").value(userResponse.getId()))
+                .andExpect(jsonPath("$.user.email").value(userResponse.getEmail()));
     }
 
     @Test
+    @WithMockUser
     void todo_단건_조회_시_todo가_존재하지_않아_예외가_발생한다() throws Exception {
         // given
         long todoId = 1L;
