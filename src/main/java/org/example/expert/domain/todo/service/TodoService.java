@@ -7,6 +7,7 @@ import org.example.expert.common.security.CustomUserDetails;
 import org.example.expert.domain.todo.dto.request.TodoSaveRequest;
 import org.example.expert.domain.todo.dto.response.TodoResponse;
 import org.example.expert.domain.todo.dto.response.TodoSaveResponse;
+import org.example.expert.domain.todo.dto.response.TodoSearchResponse;
 import org.example.expert.domain.todo.entity.Todo;
 import org.example.expert.domain.todo.repository.TodoQueryRepository;
 import org.example.expert.domain.todo.repository.TodoRepository;
@@ -59,18 +60,18 @@ public class TodoService {
     public Page<TodoResponse> getTodos(int page, int size, String weather, LocalDate startDate, LocalDate endDate) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
-        LocalDateTime from = null;
-        LocalDateTime to = null;
+        LocalDateTime since = null;
+        LocalDateTime until = null;
 
         if (startDate != null) {
-            from = startDate.atStartOfDay();
+            since = startDate.atStartOfDay();
         }
 
         if (endDate != null) {
-            to = endDate.atStartOfDay().plusDays(1);
+            until = endDate.atStartOfDay().plusDays(1);
         }
 
-        Page<Todo> todos = todoRepository.findWithOptions(weather, from, to, pageable);
+        Page<Todo> todos = todoRepository.findWithOptions(weather, since, until, pageable);
 
         return todos.map(todo -> new TodoResponse(
                 todo.getId(),
@@ -86,5 +87,23 @@ public class TodoService {
     @Transactional(readOnly = true)
     public TodoResponse getTodo(long todoId) {
         return todoQueryRepository.searchTodo(todoId);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<TodoSearchResponse> getTodosWithCondition(int page, int size, String keyword, LocalDate startDate, LocalDate endDate, String nickname) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        LocalDateTime since = null;
+        LocalDateTime until = null;
+
+        if (startDate != null) {
+            since = startDate.atStartOfDay();
+        }
+
+        if (endDate != null) {
+            until = endDate.atStartOfDay().plusDays(1);
+        }
+
+        return todoQueryRepository.searchTodos(keyword, since, until, nickname, pageable);
     }
 }
