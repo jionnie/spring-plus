@@ -24,6 +24,9 @@ repositories {
 }
 
 dependencies {
+    // AOP 의존성 설정
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+
     // Spring Security 의존성 설정
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
