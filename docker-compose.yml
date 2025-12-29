@@ -1,0 +1,10 @@
+version: "3.8"
+
+services:
+  spring:
+    image: jionnie/expert:1.0
+    container_name: spring-compose
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
