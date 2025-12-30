@@ -673,6 +673,7 @@ boolean success, Long userId, String requestUrl, String httpMethod, String clien
 
 # ERD 설계
 
+<img width="669" height="720" alt="image" src="https://github.com/user-attachments/assets/5031f0a3-dd5d-4de9-aee5-7bf5c6a11397" />
 
 # AWS 연동
 
